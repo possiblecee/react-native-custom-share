@@ -25,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libRNCustomShare.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNCustomShare.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A272EA01F2765CA0015E26A /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		8A2BAF0E1F273AC300E58AEA /* AQSInstagramActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AQSInstagramActivity.h; sourceTree = "<group>"; };
 		8A2BAF0F1F273AC300E58AEA /* AQSInstagramActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AQSInstagramActivity.m; sourceTree = "<group>"; };
 		8A2BAF101F273AC300E58AEA /* Instagram_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Instagram_icon.png; sourceTree = "<group>"; };
@@ -54,6 +55,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				8A272EA01F2765CA0015E26A /* Constants.h */,
 				8A2BAF0E1F273AC300E58AEA /* AQSInstagramActivity.h */,
 				8A2BAF0F1F273AC300E58AEA /* AQSInstagramActivity.m */,
 				8A2BAF101F273AC300E58AEA /* Instagram_icon.png */,

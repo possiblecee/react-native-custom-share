@@ -2,14 +2,10 @@
 //  AQSInstagramActivity.m
 //  AQSInstagramActivity
 //
-//  Created by Rafael Nascimento on 16/05/17.
-//  Copyright © 2017 nascimentorafael. All rights reserved.
-//
 
 #import "AQSInstagramActivity.h"
+#include "Constants.h"
 @import Photos;
-
-NSString *const kAQSInstagramURLScheme = @"instagram://app";
 
 @interface AQSInstagramActivity () <UIDocumentInteractionControllerDelegate>
 
@@ -32,11 +28,11 @@ NSString *const kAQSInstagramURLScheme = @"instagram://app";
 }
 
 - (NSString *)activityTitle {
-    return @"Instagram";
+    return kInstagramActivityTitle;
 }
 
 - (UIImage *)activityImage {
-    return [UIImage imageNamed:[NSString stringWithFormat:@"Instagram_icon"]];
+    return [UIImage imageNamed:[NSString stringWithFormat:kInstagramIcon]];
 }
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems {
@@ -60,7 +56,7 @@ NSString *const kAQSInstagramURLScheme = @"instagram://app";
 # pragma mark - Helpers (Instagram)
 
 - (BOOL)isInstagramInstalled {
-    return [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:kAQSInstagramURLScheme]];
+    return [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:kInstagramURLScheme]];
 }
 
 - (void)savePicAndOpenInstagram {
@@ -83,7 +79,7 @@ NSString *const kAQSInstagramURLScheme = @"instagram://app";
         
         if (success) {
             
-            NSURL *instagramURL = [NSURL URLWithString:[NSString stringWithFormat:@"instagram://library?LocalIdentifier=\%@", [placeholder localIdentifier]]];
+            NSURL *instagramURL = [NSURL URLWithString:[NSString stringWithFormat:kInstagramLibraryURLScheme, [placeholder localIdentifier]]];
             
             if ([[UIApplication sharedApplication] canOpenURL:instagramURL]) {
                 [[UIApplication sharedApplication] openURL:instagramURL options:@{} completionHandler:nil];
@@ -98,7 +94,7 @@ NSString *const kAQSInstagramURLScheme = @"instagram://app";
 # pragma mark - Helpers (UIDocumentInteractionController)
 
 - (NSURL *)nilOrFileURLWithImageDataTemporary:(NSData *)data {
-    NSString *writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"instagram.ig"];
+    NSString *writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:kInstagramPath];
     if (![data writeToFile:writePath atomically:YES]) {
         [self activityDidFinish:NO];
         return nil;
@@ -109,7 +105,7 @@ NSString *const kAQSInstagramURLScheme = @"instagram://app";
 
 - (UIDocumentInteractionController *)documentInteractionControllerForInstagramWithFileURL:(NSURL *)URL withCaptionText:(NSString *)textOrNil {
     UIDocumentInteractionController *controller = [UIDocumentInteractionController interactionControllerWithURL:URL];
-    [controller setUTI:@"com.instagram.exclusivegram"];
+    [controller setUTI:kInstagramUTI];
     if (textOrNil == nil) {
         textOrNil = @"";
     }
@@ -147,7 +143,7 @@ NSString *const kAQSInstagramURLScheme = @"instagram://app";
 # pragma mark - UIDocumentInteractionControllerDelegate
 
 - (void)documentInteractionController:(UIDocumentInteractionController *)controller willBeginSendingToApplication:(NSString *)application {
-    if ([application isEqualToString:@"com.burbn.instagram"]) {
+    if ([application isEqualToString:kInstagramBundleId]) {
         self.isPerformed = YES;
     }
 }

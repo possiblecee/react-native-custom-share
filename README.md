@@ -1,6 +1,8 @@
 
 # react-native-custom-share
 
+Github repo: https://github.com/nascimentorafael/react-native-custom-share
+
 ## Getting started
 
 `$ npm install react-native-custom-share --save`
@@ -10,7 +12,6 @@
 `$ react-native link react-native-custom-share`
 
 ### Manual installation
-
 
 #### iOS
 
@@ -34,15 +35,6 @@
       compile project(':react-native-custom-share')
   	```
 
-#### Windows
-[Read it! :D](https://github.com/ReactWindows/react-native)
-
-1. In Visual Studio add the `RNCustomShare.sln` in `node_modules/react-native-custom-share/windows/RNCustomShare.sln` folder to their solution, reference from their app.
-2. Open up your `MainPage.cs` app
-  - Add `using Com.Reactlibrary.RNCustomShare;` to the usings at the top of the file
-  - Add `new RNCustomSharePackage()` to the `List<IReactPackage>` returned by the `Packages` method
-
-
 ## Usage
 ```javascript
 import RNCustomShare from 'react-native-custom-share';
@@ -50,4 +42,3 @@ import RNCustomShare from 'react-native-custom-share';
 // TODO: What to do with the module?
 RNCustomShare;
 ```
-  

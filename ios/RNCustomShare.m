@@ -1,13 +1,15 @@
+//
+//  Created by Rafael Nascimento on 25/07/17.
+//  Copyright © 2017. All rights reserved.
+//
 
 #import "RNCustomShare.h"
 #import "RCTBridge.h"
 #import "AQSInstagramActivity.h"
 #import <Social/Social.h>
 #import <Accounts/Accounts.h>
+#include "Constants.h"
 @import Photos;
-
-NSString *const kAQSInstagramURLScheme = @"instagram://app";
-NSString *const kAQSWhatsappURLScheme = @"whatsapp://app";
 
 @implementation RNCustomShare
 
@@ -21,8 +23,8 @@ RCT_EXPORT_MODULE()
 
 - (NSDictionary *)constantsToExport {
     return @{
-             @"isInstagramInstalled":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString: kAQSInstagramURLScheme]] ? @(YES) : @(NO),
-             @"isWhatsapppInstalled":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kAQSWhatsappURLScheme]] ? @(YES) : @(NO),
+             @"isInstagramInstalled":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString: kInstagramURLScheme]] ? @(YES) : @(NO),
+             @"isWhatsapppInstalled":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kWhatsappURLScheme]] ? @(YES) : @(NO),
              @"isTwitterInstalled": [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter] ? @(YES) : @(NO),
              @"isFacebookInstalled":[SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook] ? @(YES) : @(NO)
              };
@@ -45,11 +47,10 @@ RCT_EXPORT_METHOD(share:(NSString *)base64Image copy:(NSString *)copy andUrl:(NS
     
     UIViewController *rootController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
     [rootController presentViewController:activityController animated:YES completion:NULL];
-    
 }
 
 RCT_EXPORT_METHOD(shareOnInstagram:(NSString *)base64Image) {
-    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kAQSInstagramURLScheme]]) {
+    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kInstagramURLScheme]]) {
         PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
         if (status == PHAuthorizationStatusAuthorized || status == PHAuthorizationStatusDenied) {
             [self savePicAndOpenInstagram: base64Image];
@@ -65,12 +66,12 @@ RCT_EXPORT_METHOD(shareOnInstagram:(NSString *)base64Image) {
 }
 
 RCT_EXPORT_METHOD(shareOnWhatsapp:(NSString *)copy andUrl:(NSString *)url) {
-    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kAQSWhatsappURLScheme]]) {
+    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kWhatsappURLScheme]]) {
         copy = [copy stringByAppendingString:@" "];
         copy = [copy stringByAppendingString:url];
         copy = [copy stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-        NSURL *whatsappURL = [NSURL URLWithString:[NSString stringWithFormat:@"whatsapp://send?text=%@", copy]];
-        [[UIApplication sharedApplication] openURL:whatsappURL options:@{} completionHandler:nil];
+        NSURL *whatsappURL = [NSURL URLWithString:[NSString stringWithFormat:kWhatsappSendTextURLScheme, copy]];
+        [[UIApplication sharedApplication] openURL:whatsappURL options:@{} completionHandler:NULL];
     }
 }
 
@@ -118,7 +119,7 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
     } completionHandler:^(BOOL success, NSError *error) {
         
         if (success) {
-            NSURL *instagramURL = [NSURL URLWithString:[NSString stringWithFormat:@"instagram://library?LocalIdentifier=\%@", [placeholder localIdentifier]]];
+            NSURL *instagramURL = [NSURL URLWithString:[NSString stringWithFormat:kInstagramLibraryURLScheme, [placeholder localIdentifier]]];
             
             if ([[UIApplication sharedApplication] canOpenURL:instagramURL]) {
                 [[UIApplication sharedApplication] openURL:instagramURL options:@{} completionHandler:nil];
@@ -133,7 +134,7 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
 # pragma mark - Helpers (UIDocumentInteractionController)
 
 - (NSURL *)nilOrFileURLWithImageDataTemporary:(NSData *)data {
-    NSString *writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"instagram.ig"];
+    NSString *writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:kInstagramPath];
     if (![data writeToFile:writePath atomically:YES]) {
         return nil;
     }
@@ -143,7 +144,7 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
 
 - (UIDocumentInteractionController *)documentInteractionControllerForInstagramWithFileURL:(NSURL *)URL withCaptionText:(NSString *)textOrNil {
     UIDocumentInteractionController *controller = [UIDocumentInteractionController interactionControllerWithURL:URL];
-    [controller setUTI:@"com.instagram.exclusivegram"];
+    [controller setUTI:kInstagramUTI];
     if (textOrNil == nil) {
         textOrNil = @"";
     }
@@ -152,5 +153,3 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
 }
 
 @end
-
-  
