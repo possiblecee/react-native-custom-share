@@ -23,10 +23,10 @@ RCT_EXPORT_MODULE()
 
 - (NSDictionary *)constantsToExport {
     return @{
-             @"isInstagramInstalled":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString: kInstagramURLScheme]] ? @(YES) : @(NO),
-             @"isWhatsapppInstalled":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kWhatsappURLScheme]] ? @(YES) : @(NO),
-             @"isTwitterInstalled": [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter] ? @(YES) : @(NO),
-             @"isFacebookInstalled":[SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook] ? @(YES) : @(NO)
+             @"instagram":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString: kInstagramURLScheme]] ? @(YES) : @(NO),
+             @"whatsapp":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kWhatsappURLScheme]] ? @(YES) : @(NO),
+             @"twitter": [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter] ? @(YES) : @(NO),
+             @"facebook":[SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook] ? @(YES) : @(NO)
              };
 }
 
