@@ -69,7 +69,7 @@ public class CustomInstagramShareModule extends ReactContextBaseJavaModule imple
 
     @Override
     public String getName() {
-        return "CustomInstagramShare";
+        return "RNCustomShare";
     }
 
     @ReactMethod
