@@ -46,7 +46,9 @@ RCT_EXPORT_METHOD(share:(NSString *)base64Image copy:(NSString *)copy andUrl:(NS
     activityController.excludedActivityTypes = @[UIActivityTypeAssignToContact, UIActivityTypePrint, UIActivityTypeAddToReadingList, UIActivityTypeCopyToPasteboard, UIActivityTypeOpenInIBooks];
     
     UIViewController *rootController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
-    [rootController presentViewController:activityController animated:YES completion:NULL];
+    [rootController presentViewController:activityController animated:YES completion:^(BOOL success){
+        return success;
+    }];
 }
 
 RCT_EXPORT_METHOD(shareOnInstagram:(NSString *)base64Image) {
@@ -71,7 +73,9 @@ RCT_EXPORT_METHOD(shareOnWhatsapp:(NSString *)copy andUrl:(NSString *)url) {
         copy = [copy stringByAppendingString:url];
         copy = [copy stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
         NSURL *whatsappURL = [NSURL URLWithString:[NSString stringWithFormat:kWhatsappSendTextURLScheme, copy]];
-        [[UIApplication sharedApplication] openURL:whatsappURL options:@{} completionHandler:NULL];
+        [[UIApplication sharedApplication] openURL:whatsappURL options:@{} completionHandler:^(BOOL success){
+            return success;
+        }];
     }
 }
 
@@ -81,7 +85,9 @@ RCT_EXPORT_METHOD(shareOnFacebook:(NSString *)copy andUrl:(NSString *)url) {
         [fbPostSheet setInitialText:copy];
         [fbPostSheet addURL:[NSURL URLWithString:url]];
         UIViewController *rootController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
-        [rootController presentViewController:fbPostSheet animated:YES completion:NULL];
+        [rootController presentViewController:fbPostSheet animated:YES completion:^(BOOL success){
+            return success;
+        }];
     }
 }
 
@@ -91,7 +97,9 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
         [twPostSheet setInitialText:copy];
         [twPostSheet addURL:[NSURL URLWithString:url]];
         UIViewController *rootController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
-        [rootController presentViewController:twPostSheet animated:YES completion:NULL];
+        [rootController presentViewController:twPostSheet animated:YES completion:^(BOOL success){
+            return success;
+        }];
     }
 }
 
@@ -122,7 +130,9 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
             NSURL *instagramURL = [NSURL URLWithString:[NSString stringWithFormat:kInstagramLibraryURLScheme, [placeholder localIdentifier]]];
             
             if ([[UIApplication sharedApplication] canOpenURL:instagramURL]) {
-                [[UIApplication sharedApplication] openURL:instagramURL options:@{} completionHandler:nil];
+                [[UIApplication sharedApplication] openURL:instagramURL options:@{} completionHandler:^(BOOL success){
+                    return success;
+                }];
             }
         }
         else {
