@@ -9,6 +9,10 @@
 #import <Social/Social.h>
 #import <Accounts/Accounts.h>
 #include "Constants.h"
+#import "RCTConvert.h"
+#import "RCTLog.h"
+#import "RCTUIManager.h"
+#import "RCTUtils.h"
 @import Photos;
 
 @implementation RNCustomShare
@@ -21,6 +25,8 @@ RCT_EXPORT_MODULE()
     return dispatch_get_main_queue();
 }
 
+# pragma mark - Is installed
+
 - (NSDictionary *)constantsToExport {
     return @{
              @"instagram":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString: kInstagramURLScheme]] ? @(YES) : @(NO),
@@ -30,6 +36,8 @@ RCT_EXPORT_MODULE()
              };
 }
 
+
+# pragma mark - General sharing
 
 RCT_EXPORT_METHOD(share:(NSString *)base64Image copy:(NSString *)copy andUrl:(NSString *)url) {
     
@@ -49,16 +57,127 @@ RCT_EXPORT_METHOD(share:(NSString *)base64Image copy:(NSString *)copy andUrl:(NS
     [rootController presentViewController:activityController animated:YES completion:NULL];
 }
 
-RCT_EXPORT_METHOD(shareOnInstagram:(NSString *)base64Image) {
+# pragma mark - Sharing WITH callback
+
+RCT_EXPORT_METHOD(shareOnInstagramWithCallback:(NSString *)base64Image
+                  failureCallback:(RCTResponseErrorBlock)failureCallback
+                  successCallback:(RCTResponseSenderBlock)successCallback) {
     if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kInstagramURLScheme]]) {
         PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
         if (status == PHAuthorizationStatusAuthorized || status == PHAuthorizationStatusDenied) {
-            [self savePicAndOpenInstagram: base64Image];
+            [self savePicAndOpenInstagram: base64Image
+                          failureCallback: failureCallback
+                          successCallback: successCallback];;
         }
         else if (status == PHAuthorizationStatusNotDetermined) {
             [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
                 if (status == PHAuthorizationStatusAuthorized) {
-                    [self savePicAndOpenInstagram: base64Image];
+                    [self savePicAndOpenInstagram: base64Image
+                                  failureCallback: failureCallback
+                                  successCallback: successCallback];;
+                }
+            }];
+        }
+    } else {
+        NSString *errorMessage = @"Not installed";
+        NSDictionary *userInfo = @{NSLocalizedFailureReasonErrorKey: NSLocalizedString(errorMessage, nil)};
+        NSError *error = [NSError errorWithDomain:@"com.rnshare" code:1 userInfo:userInfo];
+        failureCallback(error);
+    }
+}
+
+RCT_EXPORT_METHOD(shareOnTwitterWithCallback:(NSString *)copy andUrl:(NSString *)url
+                  failureCallback:(RCTResponseErrorBlock)failureCallback
+                  successCallback:(RCTResponseSenderBlock)successCallback) {
+    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
+        SLComposeViewController *twPostSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
+        [twPostSheet setInitialText:copy];
+        [twPostSheet addURL:[NSURL URLWithString:url]];
+        
+        UIViewController *controller = RCTPresentedViewController();
+        twPostSheet.completionHandler = ^(SLComposeViewControllerResult result) {
+            if (result == SLComposeViewControllerResultDone) {
+                successCallback(@[]);
+            } else {
+                NSString *errorMessage = @"Cancelled";
+                NSDictionary *userInfo = @{NSLocalizedFailureReasonErrorKey: NSLocalizedString(errorMessage, nil)};
+                NSError *error = [NSError errorWithDomain:@"com.rnshare" code:1 userInfo:userInfo];
+                failureCallback(error);
+            }
+        };
+        [controller presentViewController:twPostSheet animated:YES completion:nil];
+    } else {
+        NSString *errorMessage = @"Not installed";
+        NSDictionary *userInfo = @{NSLocalizedFailureReasonErrorKey: NSLocalizedString(errorMessage, nil)};
+        NSError *error = [NSError errorWithDomain:@"com.rnshare" code:1 userInfo:userInfo];
+        failureCallback(error);
+    }
+}
+
+RCT_EXPORT_METHOD(shareOnWhatsappWithCallback:(NSString *)copy andUrl:(NSString *)url
+                  failureCallback:(RCTResponseErrorBlock)failureCallback
+                  successCallback:(RCTResponseSenderBlock)successCallback) {
+    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kWhatsappURLScheme]]) {
+        copy = [copy stringByAppendingString:@" "];
+        copy = [copy stringByAppendingString:url];
+        copy = [copy stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+        NSURL *whatsappURL = [NSURL URLWithString:[NSString stringWithFormat:kWhatsappSendTextURLScheme, copy]];
+        [[UIApplication sharedApplication] openURL:whatsappURL];
+        successCallback(@[]);
+        
+    } else {
+        NSString *errorMessage = @"Not installed";
+        NSDictionary *userInfo = @{NSLocalizedFailureReasonErrorKey: NSLocalizedString(errorMessage, nil)};
+        NSError *error = [NSError errorWithDomain:@"com.rnshare" code:1 userInfo:userInfo];
+        failureCallback(error);
+    }
+}
+
+RCT_EXPORT_METHOD(shareOnFacebookWithCallback:(NSString *)copy andUrl:(NSString *)url
+                  failureCallback:(RCTResponseErrorBlock)failureCallback
+                  successCallback:(RCTResponseSenderBlock)successCallback) {
+    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
+        SLComposeViewController *fbPostSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
+        [fbPostSheet setInitialText:copy];
+        [fbPostSheet addURL:[NSURL URLWithString:url]];
+        
+        UIViewController *controller = RCTPresentedViewController();
+        fbPostSheet.completionHandler = ^(SLComposeViewControllerResult result) {
+            if (result == SLComposeViewControllerResultDone) {
+                successCallback(@[]);
+            } else {
+                NSString *errorMessage = @"Cancelled";
+                NSDictionary *userInfo = @{NSLocalizedFailureReasonErrorKey: NSLocalizedString(errorMessage, nil)};
+                NSError *error = [NSError errorWithDomain:@"com.rnshare" code:1 userInfo:userInfo];
+                failureCallback(error);
+            }
+        };
+        [controller presentViewController:fbPostSheet animated:YES completion:nil];
+        
+    } else {
+        NSString *errorMessage = @"Not installed";
+        NSDictionary *userInfo = @{NSLocalizedFailureReasonErrorKey: NSLocalizedString(errorMessage, nil)};
+        NSError *error = [NSError errorWithDomain:@"com.rnshare" code:1 userInfo:userInfo];
+        failureCallback(error);
+    }
+}
+
+# pragma mark - Sharing WITHOUT callback
+
+RCT_EXPORT_METHOD(shareOnInstagram:(NSString *)base64Image) {
+    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kInstagramURLScheme]]) {
+        PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+        if (status == PHAuthorizationStatusAuthorized || status == PHAuthorizationStatusDenied) {
+            [self savePicAndOpenInstagram: base64Image
+                          failureCallback: NULL
+                          successCallback: NULL];
+        }
+        else if (status == PHAuthorizationStatusNotDetermined) {
+            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+                if (status == PHAuthorizationStatusAuthorized) {
+                    [self savePicAndOpenInstagram: base64Image
+                                  failureCallback: NULL
+                                  successCallback: NULL];;
                 }
             }];
         }
@@ -71,10 +190,7 @@ RCT_EXPORT_METHOD(shareOnWhatsapp:(NSString *)copy andUrl:(NSString *)url) {
         copy = [copy stringByAppendingString:url];
         copy = [copy stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
         NSURL *whatsappURL = [NSURL URLWithString:[NSString stringWithFormat:kWhatsappSendTextURLScheme, copy]];
-        __block bool * returnedValue = false;
-        [[UIApplication sharedApplication] openURL:whatsappURL options:@{} completionHandler:^(BOOL success) {
-            returnedValue = &success;
-        }];
+        [[UIApplication sharedApplication] openURL:whatsappURL options:@{} completionHandler:NULL];
     }
 }
 
@@ -98,7 +214,11 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
     }
 }
 
--(void)savePicAndOpenInstagram:(NSString*)base64Image {
+# pragma mark - Helpers
+
+-(void)savePicAndOpenInstagram:(NSString*)base64Image
+               failureCallback:(RCTResponseErrorBlock)failureCallback
+               successCallback:(RCTResponseSenderBlock)successCallback {
     UIImage *image = [UIImage imageWithData: [[NSData alloc]initWithBase64EncodedString:base64Image options:NSDataBase64DecodingIgnoreUnknownCharacters]];
     
     if (!image) {
@@ -126,15 +246,20 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
             
             if ([[UIApplication sharedApplication] canOpenURL:instagramURL]) {
                 [[UIApplication sharedApplication] openURL:instagramURL options:@{} completionHandler:NULL];
+                if (successCallback != NULL) {
+                    successCallback(@[]);
+                }
             }
         }
         else {
+            if (failureCallback != NULL) {
+                failureCallback(error);
+            }
+            
             NSLog(@"write error : %@",error);
         }
     }];
 }
-
-# pragma mark - Helpers (UIDocumentInteractionController)
 
 - (NSURL *)nilOrFileURLWithImageDataTemporary:(NSData *)data {
     NSString *writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:kInstagramPath];

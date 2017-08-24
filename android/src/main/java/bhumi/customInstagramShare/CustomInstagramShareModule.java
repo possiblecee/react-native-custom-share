@@ -48,16 +48,16 @@ public class CustomInstagramShareModule extends ReactContextBaseJavaModule imple
     private Activity mActivity;
     private ReactApplicationContext reactContext;
     private Callback callback;
-
+    
     final int INSTAGRAM_SHARE_REQUEST = 500;
-
+    
     public CustomInstagramShareModule(ReactApplicationContext reactContext, Activity activity) {
         super(reactContext);
         this.mActivity = activity;
         this.reactContext = reactContext;
         this.reactContext.addActivityEventListener(new RNInstagramShareActivityEventListener());
     }
-
+    
     private class RNInstagramShareActivityEventListener extends BaseActivityEventListener {
         @Override
         public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent intent) {
@@ -66,75 +66,75 @@ public class CustomInstagramShareModule extends ReactContextBaseJavaModule imple
             }
         }
     }
-
+    
     @Override
     public String getName() {
         return "RNCustomShare";
     }
-
+    
     @ReactMethod
-    public void shareWithInstagram(String base64ImageData , Callback callback) {
+    public void shareWithInstagram(String base64ImageData , Callback failureCallback,  Callback successCallback) {
         try {
-            this.callback = callback;
-
+            this.callback = successCallback;
+            
             String type = "image/*";
-
-           if(isAppInstalled("com.instagram.android") == false){
-             callback.invoke("Sorry,instagram is not installed in your device.");
-           }else {
-               // Create the new Intent using the 'Send' action.
-               Intent share = new Intent(Intent.ACTION_SEND);
-
-               // Set the MIME type
-               share.setType(type);
-               share.setPackage("com.instagram.android");
-
-               //Create the URI from the media
-               Uri uri = saveImageToPath(base64ImageData);
-
-               // Add the URI to the Intent.
-               share.putExtra(Intent.EXTRA_STREAM, uri);
-
-               // Broadcast the Intent.
-               mActivity.startActivityForResult(share, INSTAGRAM_SHARE_REQUEST);
-
+            
+            if(isAppInstalled("com.instagram.android") == false){
+                failureCallback.invoke("not_available");
+            }else {
+                // Create the new Intent using the 'Send' action.
+                Intent share = new Intent(Intent.ACTION_SEND);
+                
+                // Set the MIME type
+                share.setType(type);
+                share.setPackage("com.instagram.android");
+                
+                //Create the URI from the media
+                Uri uri = saveImageToPath(base64ImageData);
+                
+                // Add the URI to the Intent.
+                share.putExtra(Intent.EXTRA_STREAM, uri);
+                
+                // Broadcast the Intent.
+                mActivity.startActivityForResult(share, INSTAGRAM_SHARE_REQUEST);
+                successCallback.invoke("OK");
             }
         }catch (Exception e) {
             Log.d("e", e.toString());
         }
     }
-
+    
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
-
+        
     }
-
+    
     @Override
     public void onNewIntent(Intent intent) {
-
+        
     }
-
+    
     private boolean isAppInstalled(String packageName) {
         PackageManager pm = mActivity.getPackageManager();
         boolean installed = false;
         try {
-           pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-           installed = true;
+            pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+            installed = true;
         } catch (PackageManager.NameNotFoundException e) {
-           installed = false;
+            installed = false;
         }
         return installed;
     }
-
+    
     private Bitmap decodeStringToImage(String base64ImageData) {
         byte[] decodedString = Base64.decode(base64ImageData, Base64.DEFAULT);
         Bitmap image = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         return image;
     }
-
+    
     private Uri saveImageToPath(String base64ImageData) {
         Bitmap image = decodeStringToImage(base64ImageData);
-
+        
         File pictureFile = getTemporaryImageFile(".png");
         if (pictureFile == null) {
             Log.d("Error", "creating media file, check storage permissions: ");
@@ -148,14 +148,14 @@ public class CustomInstagramShareModule extends ReactContextBaseJavaModule imple
         } catch (Exception e) {
             Log.d("Exception: ", e.getMessage());
         }
-
+        
         String mediaPath = pictureFile.getPath();
         File media = new File(mediaPath);
         Uri uri = Uri.fromFile(pictureFile);
-
+        
         return uri;
     }
-
+    
     private File getTemporaryImageFile( String extension ) {
         File tempFolder = new File(Environment.getExternalStorageDirectory()+File.separator+"CustomShareTmpFolder");
         if (!tempFolder.exists()) {
@@ -164,7 +164,7 @@ public class CustomInstagramShareModule extends ReactContextBaseJavaModule imple
                 new File(tempFolder, ".nomedia").createNewFile();
             } catch (Exception e) {}
         }
-
+        
         return new File(tempFolder, String.valueOf(System.currentTimeMillis())+extension);
     }
 }
