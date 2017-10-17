@@ -31,8 +31,8 @@ RCT_EXPORT_MODULE()
     return @{
              @"instagram":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString: kInstagramURLScheme]] ? @(YES) : @(NO),
              @"whatsapp":[[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kWhatsappURLScheme]] ? @(YES) : @(NO),
-             @"twitter": [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter] ? @(YES) : @(NO),
-             @"facebook":[SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook] ? @(YES) : @(NO)
+             @"twitter": [[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kTwitterURLScheme]] ? @(YES) : @(NO),
+             @"facebook": [[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kFacebookURLScheme]] ? @(YES) : @(NO)
              };
 }
 
@@ -89,7 +89,7 @@ RCT_EXPORT_METHOD(shareOnInstagramWithCallback:(NSString *)base64Image
 RCT_EXPORT_METHOD(shareOnTwitterWithCallback:(NSString *)copy andUrl:(NSString *)url
                   failureCallback:(RCTResponseErrorBlock)failureCallback
                   successCallback:(RCTResponseSenderBlock)successCallback) {
-    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
+    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kTwitterURLScheme]]) {
         SLComposeViewController *twPostSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
         [twPostSheet setInitialText:copy];
         [twPostSheet addURL:[NSURL URLWithString:url]];
@@ -136,7 +136,7 @@ RCT_EXPORT_METHOD(shareOnWhatsappWithCallback:(NSString *)copy andUrl:(NSString 
 RCT_EXPORT_METHOD(shareOnFacebookWithCallback:(NSString *)copy andUrl:(NSString *)url
                   failureCallback:(RCTResponseErrorBlock)failureCallback
                   successCallback:(RCTResponseSenderBlock)successCallback) {
-    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
+    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kFacebookURLScheme]]) {
         SLComposeViewController *fbPostSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
         [fbPostSheet setInitialText:copy];
         [fbPostSheet addURL:[NSURL URLWithString:url]];
@@ -195,7 +195,7 @@ RCT_EXPORT_METHOD(shareOnWhatsapp:(NSString *)copy andUrl:(NSString *)url) {
 }
 
 RCT_EXPORT_METHOD(shareOnFacebook:(NSString *)copy andUrl:(NSString *)url) {
-    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
+    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kFacebookURLScheme]]) {
         SLComposeViewController *fbPostSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
         [fbPostSheet setInitialText:copy];
         [fbPostSheet addURL:[NSURL URLWithString:url]];
@@ -205,7 +205,7 @@ RCT_EXPORT_METHOD(shareOnFacebook:(NSString *)copy andUrl:(NSString *)url) {
 }
 
 RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
-    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
+    if ([[UIApplication sharedApplication] canOpenURL: [NSURL URLWithString:kTwitterURLScheme]]) {
         SLComposeViewController *twPostSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
         [twPostSheet setInitialText:copy];
         [twPostSheet addURL:[NSURL URLWithString:url]];
@@ -281,3 +281,4 @@ RCT_EXPORT_METHOD(shareOnTwitter:(NSString *)copy andUrl:(NSString *)url) {
 }
 
 @end
+

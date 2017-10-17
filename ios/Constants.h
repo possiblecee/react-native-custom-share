@@ -12,6 +12,9 @@
 #define kInstagramURLScheme @"instagram://app"
 #define kWhatsappURLScheme @"whatsapp://app"
 
+#define kFacebookURLScheme @"fb://"
+#define kTwitterURLScheme @"twitter://"
+
 #define kWhatsappSendTextURLScheme @"whatsapp://send?text=%@"
 #define kInstagramLibraryURLScheme @"instagram://library?LocalIdentifier=\%@"
 
@@ -26,3 +29,4 @@
 #define kInstagramActivityTitle @"Instagram"
 
 #endif /* Constants_h */
+
