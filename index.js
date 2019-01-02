@@ -2,23 +2,27 @@
 import { NativeModules, Platform } from 'react-native';
 
 class RNCustomShare {
+  static instagramCallbackRegistered = false;
+
   static shareOnInstagramWithCallback(base64Str){
     return new Promise((resolve, reject) => {
       if (Platform.OS === "ios") {
-        NativeModules.RNCustomShare.shareOnInstagramWithCallback(base64Str,(e) => {
+        NativeModules.RNCustomShare.shareOnInstagramWithCallback(base64Str, 
+        (e) => {
           return reject({ error: e });
-        },(e) => {
-          return resolve({
-            message: e
-          });
+        }, (message) => {
+          return resolve({ message });
         });
-      } else {
-        NativeModules.RNCustomShare.shareWithInstagram(base64Str,(e) => {
+      } else if (!this.instagramCallbackRegistered) {
+        this.instagramCallbackRegistered = true
+
+        NativeModules.RNCustomShare.shareWithInstagram(base64Str, 
+        (e) => {
+          this.instagramCallbackRegistered = false
           return reject({ error: e });
-        },(e) => {
-          resolve({
-            message: e
-          });
+        }, (message) => {
+          this.instagramCallbackRegistered = false
+          return resolve({ message });
         });
       }
     });
